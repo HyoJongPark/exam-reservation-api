@@ -143,6 +143,23 @@ def update_reservation(
     return ReservationResponse.from_model(reservation)
 
 
+def cancel_reservation(
+    db: Session, user: User, reservation_id: int
+) -> ReservationResponse:
+    reservation = reservation_repository.find_by_id(db, reservation_id)
+    if user.role != Role.ADMIN and (
+        reservation.user_id != user.id
+        or reservation.status != ReservationStatus.PENDING
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="접근할 수 없는 예약 정보입니다.",
+        )
+
+    reservation.status = ReservationStatus.CANCELLED
+    return ReservationResponse.from_model(reservation)
+
+
 def _validate_reservation_datetime(
     db: Session,
     start_time: datetime,

@@ -73,6 +73,15 @@ def confirm_reservation(
     return reservation_service.confirm_reservation(db, user, reservation_id)
 
 
+@router.post("/{reservation_id}/cancel", response_model=ReservationResponse)
+def cancel_reservation(
+    user: Annotated[User, Depends(authenticate_user)],
+    reservation_id: int,
+    db: Session = Depends(get_db_from_request),
+) -> ReservationResponse:
+    return reservation_service.cancel_reservation(db, user, reservation_id)
+
+
 @router.patch("/{reservation_id}", response_model=ReservationResponse)
 def update_reservation(
     user: Annotated[User, Depends(authenticate_user)],
