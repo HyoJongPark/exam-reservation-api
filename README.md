@@ -10,6 +10,8 @@ export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
+
+pyenv local 3.12.0
 ```
 
 - 해당 프로젝트는 python version 3.12에서 작성되었습니다.
@@ -18,7 +20,7 @@ eval "$(pyenv init -)"
 ```
 python -m venv venv
 
-source venv/bin/activate  # macOS/Linux
+source ./venv/bin/activate  # macOS/Linux
 
 pip install -r requirements.txt
 ```
