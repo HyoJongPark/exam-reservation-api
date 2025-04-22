@@ -14,6 +14,9 @@ from app.src.reservation.dto.request.get_available_schedule_request import (
 from app.src.reservation.dto.request.get_reservations_request import (
     GetReservationsRequest,
 )
+from app.src.reservation.dto.request.update_reservation_request import (
+    UpdateReservationRequest,
+)
 from app.src.reservation.dto.response.get_available_schedule_response import (
     GetAvailableScheduleResponse,
 )
@@ -68,3 +71,13 @@ def confirm_reservation(
     db: Session = Depends(get_db_from_request),
 ) -> ReservationResponse:
     return reservation_service.confirm_reservation(db, user, reservation_id)
+
+
+@router.patch("/{reservation_id}", response_model=ReservationResponse)
+def update_reservation(
+    user: Annotated[User, Depends(authenticate_user)],
+    reservation_id: int,
+    request: Annotated[UpdateReservationRequest, Body()],
+    db: Session = Depends(get_db_from_request),
+) -> ReservationResponse:
+    return reservation_service.update_reservation(db, user, reservation_id, request)
