@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.src.common.token import TokenData
 from app.src.config.database import get_db_from_request
 from app.src.user import repository as user_repository
+from app.src.user.model import Role
 from app.src.user.service import ALGORITHM, SECRET_KEY
 
 
@@ -44,5 +45,17 @@ async def authenticate_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+
+async def authenticate_admin(
+    db: Session = Depends(get_db_from_request),
+    token: Annotated[str, Depends(oauth2_scheme)] = None,
+):
+    user = await authenticate_user(db, token)
+    if user.role != Role.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="관리자 권한이 필요합니다."
         )
     return user

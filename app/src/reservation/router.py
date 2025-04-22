@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.src.config.database import get_db_from_request
-from app.src.middleware.authenticate import authenticate_user
+from app.src.middleware.authenticate import authenticate_admin, authenticate_user
 from app.src.reservation.dto.request.create_reservation_request import (
     CreateReservationRequest,
 )
@@ -59,3 +59,12 @@ def create_reservation(
 ) -> ReservationResponse:
     print("request.end_time", request.end_time)
     return reservation_service.create_reservation(db, user, request)
+
+
+@router.post("/{reservation_id}/confirm", response_model=ReservationResponse)
+def confirm_reservation(
+    user: Annotated[User, Depends(authenticate_admin)],
+    reservation_id: int,
+    db: Session = Depends(get_db_from_request),
+) -> ReservationResponse:
+    return reservation_service.confirm_reservation(db, user, reservation_id)

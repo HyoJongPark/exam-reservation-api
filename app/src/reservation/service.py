@@ -43,6 +43,12 @@ def find_all_by_date(
 
 def find_by_id(db: Session, user: User, reservation_id: int) -> ReservationResponse:
     reservation = reservation_repository.find_by_id(db, reservation_id)
+    if not reservation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="존재하지 않는 예약입니다.",
+        )
+
     if user.role != Role.ADMIN and reservation.user_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -75,6 +81,26 @@ def create_reservation(
     )
 
     reservation = reservation_repository.create(db, request.toModel(user))
+    return ReservationResponse.from_model(reservation)
+
+
+def confirm_reservation(
+    db: Session, user: User, reservation_id: int
+) -> ReservationResponse:
+    reservation = reservation_repository.find_by_id(db, reservation_id)
+    if not reservation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="존재하지 않는 예약입니다.",
+        )
+
+    if reservation.status != ReservationStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="예약 승인이 불가한 상태입니다.",
+        )
+
+    reservation.status = ReservationStatus.CONFIRMED
     return ReservationResponse.from_model(reservation)
 
 
