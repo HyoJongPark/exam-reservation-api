@@ -13,6 +13,10 @@ def create(db: Session, reservation: Reservation) -> Reservation:
     return reservation
 
 
+def find_by_id(db: Session, reservation_id: int) -> Reservation:
+    return db.query(Reservation).filter(Reservation.id == reservation_id).first()
+
+
 def find_all_by_range_and_status(
     db: Session,
     start_time: datetime,

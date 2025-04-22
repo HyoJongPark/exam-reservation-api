@@ -14,10 +14,20 @@ from app.src.reservation.dto.request.get_available_schedule_request import (
 from app.src.reservation.dto.response.get_available_schedule_response import (
     GetAvailableScheduleResponse,
 )
+from app.src.reservation.dto.response.reservation_response import ReservationResponse
 from app.src.user.model import User
 
 
 router = APIRouter(prefix="/reservations", tags=["reservations"])
+
+
+@router.get("/{reservation_id}", response_model=ReservationResponse)
+def get_reservation(
+    user: Annotated[User, Depends(authenticate_user)],
+    reservation_id: int,
+    db: Session = Depends(get_db_from_request),
+) -> ReservationResponse:
+    return reservation_service.find_by_id(db, user, reservation_id)
 
 
 @router.get("/schedules", response_model=List[GetAvailableScheduleResponse])
@@ -29,11 +39,11 @@ def get_available_schedules(
     return reservation_service.find_available_schedules(db, request)
 
 
-@router.post("/")
+@router.post("/", response_model=ReservationResponse)
 def create_reservation(
     user: Annotated[User, Depends(authenticate_user)],
     request: Annotated[CreateReservationRequest, Body()],
     db: Session = Depends(get_db_from_request),
-):
+) -> ReservationResponse:
     print("request.end_time", request.end_time)
     return reservation_service.create_reservation(db, user, request)

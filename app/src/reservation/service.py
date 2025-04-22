@@ -3,6 +3,7 @@ from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+
 from app.src.reservation.dto.request.create_reservation_request import (
     CreateReservationRequest,
 )
@@ -19,7 +20,18 @@ from app.src.reservation.utils.constants import (
     MAX_CAPACITY,
     SLOT_MINUTES,
 )
-from app.src.user.model import User
+from app.src.user.model import Role, User
+
+
+def find_by_id(db: Session, user: User, reservation_id: int) -> ReservationResponse:
+    reservation = reservation_repository.find_by_id(db, reservation_id)
+    if user.role != Role.ADMIN and reservation.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="조회할 수 없는 예약 정보입니다.",
+        )
+
+    return ReservationResponse.from_model(reservation)
 
 
 def find_available_schedules(
