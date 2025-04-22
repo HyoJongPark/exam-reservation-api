@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.src.reservation.model import Reservation
 from app.src.reservation.utils.constants import DATETIME_FORMAT, MAX_CAPACITY
@@ -14,19 +14,16 @@ class CreateReservationRequest(BaseModel):
     reservation_name: str
     number_of_people: int = Field(default=1, ge=1, le=MAX_CAPACITY)
 
+    @field_validator("start_time", "end_time", mode="before")
     @classmethod
-    @model_validator(mode="before")
-    def validate_datetime_format(cls, values: dict) -> dict:
-        for field in ["start_time", "end_time"]:
-            value = values.get(field)
-            if isinstance(value, str):
-                try:
-                    datetime.strptime(value, DATETIME_FORMAT)
-                except ValueError as e:
-                    raise ValueError(
-                        f"예약 일정 형식은 '{DATETIME_FORMAT}' 포맷이어야 합니다."
-                    ) from e
-        return values
+    def validate_datetime_format(cls, value: str) -> str:
+        try:
+            datetime.strptime(value, DATETIME_FORMAT)
+        except ValueError as e:
+            raise ValueError(
+                f"예약 일정 형식은 '{DATETIME_FORMAT}' 포맷이어야 합니다."
+            ) from e
+        return value
 
     @model_validator(mode="after")
     def validate_reservation_datetime(self):
