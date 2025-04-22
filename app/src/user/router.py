@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.src.common.token import Token
 from app.src.config.database import get_db_from_request
 from app.src.user.dto.request.user_create_request import UserCreateRequest
+from app.src.user.dto.request.user_login_request import UserLoginRequest
 from app.src.user.dto.response.user_create_response import UserCreateResponse
 from app.src.user import service as user_service
 
@@ -13,13 +14,13 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(
-    user: UserCreateRequest, db: Session = Depends(get_db_from_request)
+    request: UserCreateRequest, db: Session = Depends(get_db_from_request)
 ) -> UserCreateResponse:
-    return user_service.register(db, user)
+    return user_service.register(db, request)
 
 
 @router.post("/login")
 def login(
-    email: str, password: str, db: Session = Depends(get_db_from_request)
+    request: UserLoginRequest, db: Session = Depends(get_db_from_request)
 ) -> Token:
-    return user_service.login(db, email, password)
+    return user_service.login(db, request)

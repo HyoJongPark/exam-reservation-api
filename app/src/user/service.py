@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.src.common.token import Token
 from app.src.user import repository as user_repository
 from app.src.user.dto.request.user_create_request import UserCreateRequest
+from app.src.user.dto.request.user_login_request import UserLoginRequest
 from app.src.user.dto.response.user_create_response import UserCreateResponse
 
 SECRET_KEY = "secret_key"
@@ -30,14 +31,14 @@ def register(db: Session, user: UserCreateRequest) -> UserCreateResponse:
     return UserCreateResponse.from_model(created_user)
 
 
-def login(db: Session, email: str, password: str) -> Token:
-    user = user_repository.find_by_email(db, email)
+def login(db: Session, request: UserLoginRequest) -> Token:
+    user = user_repository.find_by_email(db, request.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="존재하지 않는 이메일 입니다.",
         )
-    if not _verify_password(password, user.hashed_password):
+    if not _verify_password(request.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="비밀번호가 일치하지 않습니다.",
