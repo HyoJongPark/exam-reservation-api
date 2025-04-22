@@ -1,5 +1,5 @@
-from typing import Annotated
-from fastapi import APIRouter, Body, Depends
+from typing import Annotated, List
+from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.src.config.database import get_db_from_request
@@ -8,13 +8,27 @@ from app.src.reservation.dto.request.create_reservation_request import (
     CreateReservationRequest,
 )
 from app.src.reservation import service as reservation_service
+from app.src.reservation.dto.request.get_available_schedule_request import (
+    GetAvailableScheduleRequest,
+)
+from app.src.reservation.dto.response.get_available_schedule_response import (
+    GetAvailableScheduleResponse,
+)
 from app.src.user.model import User
 
 
 router = APIRouter(prefix="/reservations", tags=["reservations"])
 
 
-# 완료
+@router.get("/schedules", response_model=List[GetAvailableScheduleResponse])
+def get_available_schedules(
+    user: Annotated[User, Depends(authenticate_user)],
+    request: Annotated[GetAvailableScheduleRequest, Query()],
+    db: Session = Depends(get_db_from_request),
+) -> List[GetAvailableScheduleResponse]:
+    return reservation_service.find_available_schedules(db, request)
+
+
 @router.post("/")
 def create_reservation(
     user: Annotated[User, Depends(authenticate_user)],

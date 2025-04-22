@@ -2,7 +2,7 @@ import datetime
 from typing import List
 from sqlalchemy.orm import Session
 
-from app.src.reservation.model import Reservation
+from app.src.reservation.model import Reservation, ReservationStatus
 
 
 def create(db: Session, reservation: Reservation) -> Reservation:
@@ -13,12 +13,17 @@ def create(db: Session, reservation: Reservation) -> Reservation:
     return reservation
 
 
-def find_all_by_range(
-    db: Session, start_time: datetime, end_time: datetime, lock: bool
+def find_all_by_range_and_status(
+    db: Session,
+    start_time: datetime,
+    end_time: datetime,
+    status: List[ReservationStatus],
+    lock: bool,
 ) -> List[Reservation]:
     query = db.query(Reservation).filter(
         Reservation.start_time.between(start_time, end_time),
         Reservation.end_time.between(start_time, end_time),
+        Reservation.status.in_(status),
     )
 
     if lock:
