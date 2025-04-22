@@ -91,7 +91,7 @@ def create_reservation(
 def confirm_reservation(
     db: Session, user: User, reservation_id: int
 ) -> ReservationResponse:
-    reservation = reservation_repository.find_by_id(db, reservation_id)
+    reservation = reservation_repository.find_by_id(db, reservation_id, True)
     if not reservation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -104,6 +104,13 @@ def confirm_reservation(
             detail="예약 승인이 불가한 상태입니다.",
         )
 
+    _validate_reservation_datetime(
+        db,
+        reservation.start_time,
+        reservation.end_time,
+        reservation.number_of_people,
+        True,
+    )
     reservation.status = ReservationStatus.CONFIRMED
     return ReservationResponse.from_model(reservation)
 

@@ -14,8 +14,11 @@ def create(db: Session, reservation: Reservation) -> Reservation:
     return reservation
 
 
-def find_by_id(db: Session, reservation_id: int) -> Reservation:
-    return db.query(Reservation).filter(Reservation.id == reservation_id).first()
+def find_by_id(db: Session, reservation_id: int, lock: bool = False) -> Reservation:
+    query = db.query(Reservation).filter(Reservation.id == reservation_id)
+    if lock:
+        query = query.with_for_update()
+    return query.first()
 
 
 def find_all_by_date_and_page(
