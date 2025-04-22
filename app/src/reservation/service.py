@@ -10,6 +10,9 @@ from app.src.reservation.dto.request.create_reservation_request import (
 from app.src.reservation.dto.request.get_available_schedule_request import (
     GetAvailableScheduleRequest,
 )
+from app.src.reservation.dto.request.get_reservations_request import (
+    GetReservationsRequest,
+)
 from app.src.reservation.dto.response.get_available_schedule_response import (
     GetAvailableScheduleResponse,
 )
@@ -21,6 +24,21 @@ from app.src.reservation.utils.constants import (
     SLOT_MINUTES,
 )
 from app.src.user.model import Role, User
+
+
+def find_all_by_date(
+    db: Session, user: User, request: GetReservationsRequest
+) -> List[ReservationResponse]:
+    if user.role == Role.ADMIN:
+        reservations = reservation_repository.find_all_by_date_and_page(
+            db, request.start_date, request.end_date, request.page, request.limit
+        )
+    else:
+        reservations = reservation_repository.find_all_by_user_and_date_and_page(
+            db, user, request.start_date, request.end_date, request.page, request.limit
+        )
+
+    return [ReservationResponse.from_model(reservation) for reservation in reservations]
 
 
 def find_by_id(db: Session, user: User, reservation_id: int) -> ReservationResponse:
