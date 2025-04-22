@@ -13,15 +13,15 @@ def create(db: Session, reservation: Reservation) -> Reservation:
     return reservation
 
 
-def find_reservation_by_range(
-    db: Session, start_time: datetime, end_time: datetime
+def find_all_by_range(
+    db: Session, start_time: datetime, end_time: datetime, lock: bool
 ) -> List[Reservation]:
-    return (
-        db.query(Reservation)
-        .filter(
-            # Reservation.status == ReservationStatus.CONFIRMED,
-            Reservation.start_time.between(start_time, end_time),
-            Reservation.end_time.between(start_time, end_time),
-        )
-        .all()
+    query = db.query(Reservation).filter(
+        Reservation.start_time.between(start_time, end_time),
+        Reservation.end_time.between(start_time, end_time),
     )
+
+    if lock:
+        query = query.with_for_update()
+
+    return query.all()
