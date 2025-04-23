@@ -8,10 +8,10 @@ from app.src.reservation.utils.constants import DATE_FORMAT
 class GetReservationsRequest(BaseModel):
     page: int = Field(default=1, ge=1)
     limit: int = Field(default=10, ge=10)
-    start_date: datetime
-    end_date: datetime
+    start: datetime
+    end: datetime
 
-    @field_validator("start_date", "end_date", mode="before")
+    @field_validator("start", "end", mode="before")
     @classmethod
     def validate_datetime_format(cls, value: str) -> str:
         try:
@@ -24,9 +24,9 @@ class GetReservationsRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_datetime(self):
-        if self.start_date > self.end_date:
+        if self.start > self.end:
             raise ValueError("종료 일자는 시작 일자보다 같거나 커야 합니다.")
 
-        self.end_date = datetime.combine(self.end_date, datetime.max.time())
+        self.end = datetime.combine(self.end, datetime.max.time())
 
         return self

@@ -35,11 +35,11 @@ def find_all_by_date(
 ) -> List[ReservationResponse]:
     if user.role == Role.ADMIN:
         reservations = reservation_repository.find_all_by_date_and_page(
-            db, request.start_date, request.end_date, request.page, request.limit
+            db, request.start, request.end, request.page, request.limit
         )
     else:
         reservations = reservation_repository.find_all_by_user_and_date_and_page(
-            db, user, request.start_date, request.end_date, request.page, request.limit
+            db, user, request.start, request.end, request.page, request.limit
         )
 
     return [ReservationResponse.from_model(reservation) for reservation in reservations]
@@ -66,12 +66,12 @@ def find_available_schedules(
     db: Session, request: GetAvailableScheduleRequest
 ) -> List[GetAvailableScheduleResponse]:
     reservations = reservation_repository.find_all_by_range_and_status(
-        db, request.start_date, request.end_date, [ReservationStatus.CONFIRMED], False
+        db, request.start, request.end, [ReservationStatus.CONFIRMED], False
     )
 
     schedules = _generate_slots_with_reservation(
-        start=request.start_date,
-        end=request.end_date,
+        start=request.start,
+        end=request.end,
         reservations=reservations,
     )
     return _merge_schedules(schedules)

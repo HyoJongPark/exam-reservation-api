@@ -6,10 +6,10 @@ from app.src.reservation.utils.constants import DATE_FORMAT
 
 
 class GetAvailableScheduleRequest(BaseModel):
-    start_date: datetime
-    end_date: datetime
+    start: datetime
+    end: datetime
 
-    @field_validator("start_date", "end_date", mode="before")
+    @field_validator("start", "end", mode="before")
     @classmethod
     def validate_datetime_format(cls, value: str) -> str:
         try:
@@ -25,17 +25,17 @@ class GetAvailableScheduleRequest(BaseModel):
         max_date = now + timedelta(days=180)
 
         # 1. 3일 이후만 예약 조회만이 가능
-        if self.start_date < min_date:
+        if self.start < min_date:
             raise ValueError("최소 3일 이후 예약 조회만이 가능합니다.")
 
         # 2. 6개월 이내만 예약 조회만이 가능
-        if self.end_date > max_date:
+        if self.end > max_date:
             raise ValueError(
                 "예약 조회는 현재 시점으로부터 180일 이내까지만 가능합니다."
             )
 
-        if self.start_date > self.end_date:
+        if self.start > self.end:
             raise ValueError("종료 일자는 시작 일자보다 같거나 커야 합니다.")
 
-        self.end_date = self.end_date + timedelta(days=1)
+        self.end = self.end + timedelta(days=1)
         return self
