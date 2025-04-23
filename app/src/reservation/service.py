@@ -86,18 +86,8 @@ def create_reservation(
 
 
 def confirm_reservation(db: Session, user: User, reservation_id: int) -> Reservation:
-    reservation = reservation_repository.find_by_id(db, reservation_id, True)
-    if not reservation:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="존재하지 않는 예약입니다.",
-        )
-
-    if reservation.status != ReservationStatus.PENDING:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="예약 승인이 불가한 상태입니다.",
-        )
+    reservation = find_by_id(db, user, reservation_id, True)
+    _validate_reservation_status(reservation)
 
     _validate_reservation_datetime(
         db,
@@ -114,12 +104,7 @@ def update_reservation(
     db: Session, user: User, reservation_id: int, request: UpdateReservationRequest
 ) -> Reservation:
     reservation = find_by_id(db, user, reservation_id, True)
-
-    if user.role != Role.ADMIN and reservation.status != ReservationStatus.PENDING:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="수정할 수 없는 예약 정보입니다.",
-        )
+    _validate_reservation_status(reservation)
 
     number_of_people = request.number_of_people or reservation.number_of_people
     start = request.start or reservation.start_time
@@ -136,11 +121,7 @@ def update_reservation(
 
 def cancel_reservation(db: Session, user: User, reservation_id: int) -> Reservation:
     reservation = find_by_id(db, user, reservation_id)
-    if user.role != Role.ADMIN and reservation.status != ReservationStatus.PENDING:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="취소할 수 없는 예약 정보입니다.",
-        )
+    _validate_reservation_status(reservation)
 
     reservation.status = ReservationStatus.CANCELLED
     return reservation
@@ -247,3 +228,11 @@ def _merge_schedules(
     merged.append(current)
 
     return merged
+
+
+def _validate_reservation_status(reservation: Reservation) -> None:
+    if reservation.status != ReservationStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="예약 상태를 확인해주세요. 이미 처리된 요청이거나 확정 상태의 예약입니다.",
+        )
