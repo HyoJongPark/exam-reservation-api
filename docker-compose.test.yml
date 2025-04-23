@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  test-db:
+    image: postgres:15
+    container_name: reservation-test-db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=reservation-test-db
+    ports:
+      - "5433:5432"
