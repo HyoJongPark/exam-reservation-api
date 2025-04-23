@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.src.reservation.utils.constants import DATE_FORMAT
-from app.src.reservation.utils.validator import validate_reservation_date_format
+from app.src.reservation.utils.model_validator import validate_reservation_date_format
 
 
 class GetAvailableScheduleRequest(BaseModel):

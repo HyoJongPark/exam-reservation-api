@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.src.reservation.model import Reservation
 from app.src.reservation.utils.constants import DATETIME_FORMAT, MAX_CAPACITY
-from app.src.reservation.utils.validator import (
+from app.src.reservation.utils.model_validator import (
     validate_reservation_date_format,
     validate_reservation_datetime,
 )
