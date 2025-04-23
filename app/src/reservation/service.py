@@ -26,7 +26,6 @@ from app.src.reservation.utils.constants import (
     MAX_CAPACITY,
     SLOT_MINUTES,
 )
-from app.src.reservation.utils.validator import validate_reservation_datetime
 from app.src.user.model import Role, User
 
 
@@ -119,22 +118,29 @@ def update_reservation(
     db: Session, user: User, reservation_id: int, request: UpdateReservationRequest
 ) -> ReservationResponse:
     reservation = reservation_repository.find_by_id(db, reservation_id)
-    if user.role != Role.ADMIN and (
-        reservation.user_id != user.id
-        or reservation.status != ReservationStatus.PENDING
-    ):
+    if not reservation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="존재하지 않는 예약입니다.",
+        )
+
+    if user.role != Role.ADMIN and reservation.user_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
+            detail="접근할 수 없는 예약 정보입니다.",
+        )
+
+    if user.role != Role.ADMIN and reservation.status != ReservationStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="수정할 수 없는 예약 정보입니다.",
         )
 
     number_of_people = request.number_of_people or reservation.number_of_people
-    start_time = request.start_time or reservation.start_time
-    end_time = request.end_time or reservation.end_time
+    start = request.start or reservation.start_time
+    end = request.end or reservation.end_time
 
-    if request.start_time or request.end_time:
-        validate_reservation_datetime(start_time, end_time)
-        _validate_reservation_datetime(db, start_time, end_time, number_of_people)
+    _validate_reservation_datetime(db, start, end, number_of_people)
 
     update_data = request.model_dump(exclude_unset=True)
     for key, value in update_data.items():
