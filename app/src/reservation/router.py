@@ -37,6 +37,15 @@ def get_reservations(
     return [ReservationResponse.from_model(reservation) for reservation in result]
 
 
+@router.get("/schedules", response_model=List[GetAvailableScheduleResponse])
+def get_available_schedules(
+    user: Annotated[User, Depends(authenticate_user)],
+    request: Annotated[GetAvailableScheduleRequest, Query()],
+    db: Session = Depends(get_db_from_request),
+) -> List[GetAvailableScheduleResponse]:
+    return reservation_service.find_available_schedules(db, request)
+
+
 @router.get("/{reservation_id}", response_model=ReservationResponse)
 def get_reservation(
     user: Annotated[User, Depends(authenticate_user)],
@@ -47,16 +56,7 @@ def get_reservation(
     return ReservationResponse.from_model(result)
 
 
-@router.get("/schedules", response_model=List[GetAvailableScheduleResponse])
-def get_available_schedules(
-    user: Annotated[User, Depends(authenticate_user)],
-    request: Annotated[GetAvailableScheduleRequest, Query()],
-    db: Session = Depends(get_db_from_request),
-) -> List[GetAvailableScheduleResponse]:
-    return reservation_service.find_available_schedules(db, request)
-
-
-@router.post("/", response_model=ReservationResponse)
+@router.post("", response_model=ReservationResponse)
 def create_reservation(
     user: Annotated[User, Depends(authenticate_user)],
     request: Annotated[CreateReservationRequest, Body()],
