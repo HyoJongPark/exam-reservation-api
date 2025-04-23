@@ -3,6 +3,6 @@ from pydantic import BaseModel
 
 
 class GetAvailableScheduleResponse(BaseModel):
-    start_time: datetime
-    end_time: datetime
+    start: datetime
+    end: datetime
     available_capacity: int

@@ -9,12 +9,12 @@ from app.src.user.model import User
 
 
 class CreateReservationRequest(BaseModel):
-    start_time: datetime
-    end_time: datetime
+    start: datetime
+    end: datetime
     reservation_name: str
     number_of_people: int = Field(default=1, ge=1, le=MAX_CAPACITY)
 
-    @field_validator("start_time", "end_time", mode="before")
+    @field_validator("start", "end", mode="before")
     @classmethod
     def validate_datetime_format(cls, value: str) -> str:
         try:
@@ -27,14 +27,14 @@ class CreateReservationRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_reservation_datetime(self):
-        validate_reservation_datetime(self.start_time, self.end_time)
+        validate_reservation_datetime(self.start, self.end)
         return self
 
     def toModel(self, user: User) -> Reservation:
         return Reservation(
             user_id=user.id,
-            start_time=self.start_time,
-            end_time=self.end_time,
+            start_time=self.start,
+            end_time=self.end,
             number_of_people=self.number_of_people,
             reservation_name=self.reservation_name,
         )

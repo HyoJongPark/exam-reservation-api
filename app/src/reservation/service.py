@@ -66,12 +66,12 @@ def find_available_schedules(
     db: Session, request: GetAvailableScheduleRequest
 ) -> List[GetAvailableScheduleResponse]:
     reservations = reservation_repository.find_all_by_range_and_status(
-        db, request.start_time, request.end_time, [ReservationStatus.CONFIRMED], False
+        db, request.start_date, request.end_date, [ReservationStatus.CONFIRMED], False
     )
 
     schedules = _generate_slots_with_reservation(
-        start_date=request.start_time,
-        end_date=request.end_time,
+        start=request.start_date,
+        end=request.end_date,
         reservations=reservations,
     )
     return _merge_schedules(schedules)
@@ -81,7 +81,7 @@ def create_reservation(
     db: Session, user: User, request: CreateReservationRequest
 ) -> ReservationResponse:
     _validate_reservation_datetime(
-        db, request.start_time, request.end_time, request.number_of_people
+        db, request.start, request.end, request.number_of_people
     )
 
     reservation = reservation_repository.create(db, request.toModel(user))
@@ -162,8 +162,8 @@ def cancel_reservation(
 
 def _validate_reservation_datetime(
     db: Session,
-    start_time: datetime,
-    end_time: datetime,
+    start: datetime,
+    end: datetime,
     number_of_people: int,
     lock: bool = False,
 ):
@@ -177,14 +177,14 @@ def _validate_reservation_datetime(
     """
     reservations = reservation_repository.find_all_by_range_and_status(
         db,
-        start_time,
-        end_time,
+        start,
+        end,
         [ReservationStatus.PENDING, ReservationStatus.CONFIRMED],
         lock,
     )
 
     # 슬롯별로 누적된 예약 수를 가져온다
-    schedules = _generate_slots_with_reservation(start_time, end_time, reservations)
+    schedules = _generate_slots_with_reservation(start, end, reservations)
 
     # 슬롯 중 하나라도 5만명 초과되는지 체크
     for schedule in schedules:
@@ -196,8 +196,8 @@ def _validate_reservation_datetime(
 
 
 def _generate_slots_with_reservation(
-    start_date: datetime,
-    end_date: datetime,
+    start: datetime,
+    end: datetime,
     reservations: List[Reservation],
 ) -> List[int]:
     """
@@ -205,26 +205,26 @@ def _generate_slots_with_reservation(
     시작/종료 일자 범위를 10분 단위로 나누고, 각 예약이 차지하는 슬롯을 카운트
     """
     # 1. 스케줄 객체로 초기화
-    total_minutes = int((end_date - start_date).total_seconds() // 60) // SLOT_MINUTES
+    total_minutes = int((end - start).total_seconds() // 60) // SLOT_MINUTES
     schedules = []
     for idx in range(total_minutes):
-        slot_start = start_date + datetime.timedelta(minutes=idx * SLOT_MINUTES)
+        slot_start = start + datetime.timedelta(minutes=idx * SLOT_MINUTES)
         slot_end = slot_start + datetime.timedelta(minutes=SLOT_MINUTES)
         schedules.append(
             GetAvailableScheduleResponse(
-                start_time=slot_start,
-                end_time=slot_end,
+                start=slot_start,
+                end=slot_end,
                 available_capacity=MAX_CAPACITY,
             )
         )
 
     # 2. 예약을 스케줄 인덱스에 반영
     for res in reservations:
-        if res.status == ReservationStatus.PENDING:
+        if res.status != ReservationStatus.CONFIRMED:
             continue
 
-        start_diff = (res.start_time - start_date).total_seconds() // 60
-        end_diff = (res.end_time - start_date).total_seconds() // 60
+        start_diff = (res.start_time - start).total_seconds() // 60
+        end_diff = (res.end_time - start).total_seconds() // 60
 
         start_idx = int(start_diff // SLOT_MINUTES)
         end_idx = min(len(schedules), int((end_diff + SLOT_MINUTES) // SLOT_MINUTES))
@@ -250,10 +250,10 @@ def _merge_schedules(
     current = schedules[0]
     for next_schedule in schedules[1:]:
         if (
-            current.end_time == next_schedule.start_time
+            current.end == next_schedule.start
             and current.available_capacity == next_schedule.available_capacity
         ):
-            current.end_time = next_schedule.end_time
+            current.end = next_schedule.end
             continue
 
         merged.append(current)

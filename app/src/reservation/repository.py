@@ -22,13 +22,13 @@ def find_by_id(db: Session, reservation_id: int, lock: bool = False) -> Reservat
 
 
 def find_all_by_date_and_page(
-    db: Session, start_date: datetime, end_date: datetime, page: int, limit: int
+    db: Session, start: datetime, end: datetime, page: int, limit: int
 ) -> List[Reservation]:
     return (
         db.query(Reservation)
         .filter(
-            Reservation.start_time.between(start_date, end_date),
-            Reservation.end_time.between(start_date, end_date),
+            Reservation.start_time.between(start, end),
+            Reservation.end_time.between(start, end),
         )
         .order_by(Reservation.start_time.asc())
         .offset((page - 1) * limit)
@@ -40,8 +40,8 @@ def find_all_by_date_and_page(
 def find_all_by_user_and_date_and_page(
     db: Session,
     user: User,
-    start_date: datetime,
-    end_date: datetime,
+    start: datetime,
+    end: datetime,
     page: int,
     limit: int,
 ) -> List[Reservation]:
@@ -49,8 +49,8 @@ def find_all_by_user_and_date_and_page(
         db.query(Reservation)
         .filter(
             Reservation.user_id == user.id,
-            Reservation.start_time.between(start_date, end_date),
-            Reservation.end_time.between(start_date, end_date),
+            Reservation.start_time.between(start, end),
+            Reservation.end_time.between(start, end),
         )
         .order_by(Reservation.start_time.asc())
         .offset((page - 1) * limit)
@@ -61,14 +61,14 @@ def find_all_by_user_and_date_and_page(
 
 def find_all_by_range_and_status(
     db: Session,
-    start_time: datetime,
-    end_time: datetime,
+    start: datetime,
+    end: datetime,
     status: List[ReservationStatus],
     lock: bool,
 ) -> List[Reservation]:
     query = db.query(Reservation).filter(
-        Reservation.start_time.between(start_time, end_time),
-        Reservation.end_time.between(start_time, end_time),
+        Reservation.start_time.between(start, end),
+        Reservation.end_time.between(start, end),
         Reservation.status.in_(status),
     )
 

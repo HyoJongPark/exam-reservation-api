@@ -60,7 +60,6 @@ def create_reservation(
     request: Annotated[CreateReservationRequest, Body()],
     db: Session = Depends(get_db_from_request),
 ) -> ReservationResponse:
-    print("request.end_time", request.end_time)
     return reservation_service.create_reservation(db, user, request)
 
 
