@@ -23,7 +23,9 @@ from app.src.user.model import Role, User
 
 @pytest.fixture
 def mock_db():
-    return MagicMock()
+    db = MagicMock()
+    db.flush = MagicMock()
+    return db
 
 
 @pytest.fixture()
@@ -760,7 +762,7 @@ class TestUpdateReservation:
         assert validation_function.call_count == 0
 
     def test_raise_error_when_date_change_and_number_of_people_over_limit(
-        self, mocker, dummy_user, dummy_reservation
+        self, mocker, mock_db, dummy_user, dummy_reservation
     ):
         """요청자는 유효하지만, 예약이 시작/종료 시간 변경 시 5만명 제한을 초과하면 예외 발생"""
         # given
@@ -800,7 +802,7 @@ class TestUpdateReservation:
         assert validation_function.call_count == 1
 
     def test_raise_error_when_number_of_people_change_and_number_of_people_over_limit(
-        self, mocker, dummy_user, dummy_reservation
+        self, mocker, mock_db, dummy_user, dummy_reservation
     ):
         """요청자는 유효하지만, 예약인원 변경 시 5만명 제한을 초과하면 예외 발생"""
         # given
@@ -838,7 +840,7 @@ class TestUpdateReservation:
         assert validation_function.call_count == 1
 
     def test_update_reservation_when_number_of_people_under_limit(
-        self, mocker, dummy_user, dummy_reservation
+        self, mocker, mock_db, dummy_user, dummy_reservation
     ):
         """요청자가 유효하면서, 예약 변경 시 5만명 제한을 초과하지 않으면 예약 수정"""
         # given
