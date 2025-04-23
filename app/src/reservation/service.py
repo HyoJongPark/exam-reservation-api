@@ -110,11 +110,14 @@ def update_reservation(
     start = request.start or reservation.start_time
     end = request.end or reservation.end_time
 
-    _validate_reservation_datetime(db, start, end, number_of_people)
-
     update_data = request.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(reservation, key, value)
+    reservation.number_of_people = 0
+    db.flush()
+
+    _validate_reservation_datetime(db, start, end, number_of_people)
+    reservation.number_of_people = number_of_people
 
     return reservation
 
