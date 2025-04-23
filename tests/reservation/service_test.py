@@ -429,11 +429,11 @@ class TestCreateReservation:
 
     @pytest.fixture(scope="class")
     def dummy_request(self):
-        min_date = datetime.datetime.now() + datetime.timedelta(days=3)
+        min_date = datetime.datetime.now() + datetime.timedelta(days=3, hours=1)
 
         return CreateReservationRequest(
-            start=f"{min_date.year}-{min_date.month:02d}-{min_date.day:02d} {min_date.hour+1:02d}:00",
-            end=f"{min_date.year}-{min_date.month:02d}-{min_date.day:02d} {min_date.hour+2:02d}:00",
+            start=f"{min_date.year}-{min_date.month:02d}-{min_date.day:02d} {min_date.hour:02d}:00",
+            end=f"{min_date.year}-{min_date.month:02d}-{min_date.day:02d} {min_date.hour:02d}:30",
             number_of_people=10000,
             reservation_name="test",
         )
