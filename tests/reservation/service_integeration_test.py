@@ -65,4 +65,5 @@ def confirm_with_new_session(
         reservation_service.confirm_reservation(db_session, user, reservation_id)
         success_ids.append(reservation_id)
     except HTTPException as e:
+        print(e)
         failed_ids.append(reservation_id)

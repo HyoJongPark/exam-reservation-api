@@ -168,8 +168,9 @@ def _generate_slots_with_reservation(
     reservations: List[Reservation],
 ) -> List[int]:
     """
-    예약 가능 시간 조회는 10분단위 조회가 가능
-    시작/종료 일자 범위를 10분 단위로 나누고, 각 예약이 차지하는 슬롯을 카운트
+    예약 가능 시간을 반환하는 함수
+    예약 가능 시간 조회는 10분단위 조회가 가능하며,
+    시작/종료 일자 범위를 10분 단위로 나누고, 각 예약이 차지하는 스케줄을 갱신한다.
     """
     # 1. 스케줄 객체로 초기화
     total_minutes = int((end - start).total_seconds() // 60) // SLOT_MINUTES
@@ -185,7 +186,7 @@ def _generate_slots_with_reservation(
             )
         )
 
-    # 2. 예약을 스케줄 인덱스에 반영
+    # 2. 예약을 스케줄에 반영
     for res in reservations:
         if res.status != ReservationStatus.CONFIRMED:
             continue
@@ -206,7 +207,7 @@ def _merge_schedules(
     schedules: List[GetAvailableScheduleResponse],
 ) -> List[GetAvailableScheduleResponse]:
     """
-    예약이 불가한 스케줄을 필터링하고, 예약 가능 인원이 동일한 연속 구간을 병합
+    예약이 불가한 스케줄을 필터링하고, 예약 가능 인원이 동일한 연속 구간을 병합하는 함수
     """
     if len(schedules) == 0:
         return []

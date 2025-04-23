@@ -4,6 +4,13 @@ from app.src.config.database import SessionLocal
 
 
 class DBSessionMiddleware(BaseHTTPMiddleware):
+    """
+    DB 세션을 관리하는 미들웨어
+    요청 전체를 래핑하여 DB 세션을 관리합니다.
+
+    요청이 들어오면 세션을 생성하고, 종료 시점에 commit or rollback을 통해 하나의 요청이 하나의 트랜잭션으로 관리되도록합니다.
+    """
+
     async def dispatch(self, request: Request, call_next):
         db = SessionLocal()
         request.state.db = db  # 세션을 request.state에 저장

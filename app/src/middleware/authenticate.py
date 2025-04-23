@@ -33,10 +33,14 @@ def _decode_token(token: str):
         ) from e
 
 
-async def authenticate_user(
+def authenticate_user(
     db: Session = Depends(get_db_from_request),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)] = None,
 ):
+    """
+    사용자 인증을 수행하는 미들웨어
+    Authorization header 에 Bearer 토큰이 있는지 확인하고, 토큰을 디코딩하여 사용자 정보를 반환합니다.
+    """
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -53,11 +57,16 @@ async def authenticate_user(
     return user
 
 
-async def authenticate_admin(
+def authenticate_admin(
     db: Session = Depends(get_db_from_request),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)] = None,
 ):
-    user = await authenticate_user(db, credentials)
+    """
+    관리자 인증을 수행하는 미들웨어
+    Authorization header 에 Bearer 토큰이 있는지 확인하고, 토큰을 디코딩하여 사용자 정보를 반환합니다.
+    반환된 사용자 정보가 관리자 역할인지 확인하고, 관리자 역할이 아니면 예외를 발생시킵니다.
+    """
+    user = authenticate_user(db, credentials)
     if user.role != Role.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="관리자 권한이 필요합니다."
