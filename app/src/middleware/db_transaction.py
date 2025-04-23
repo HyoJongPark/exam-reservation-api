@@ -17,10 +17,13 @@ class DBSessionMiddleware(BaseHTTPMiddleware):
 
         try:
             response = await call_next(request)
-            db.commit()  # 요청 처리 성공하면 커밋
+
+            # TODO: 상태 코드를 사용해서 rollback 처리하는건 좋지 않아보임.
+            # 예외처리 핸들러에서 가로채지는 예외를 어떻게 미들웨어에서 사용할 수 있는지 고민해봐야함.
+            if response.status_code >= 400:
+                db.rollback()
+            else:
+                db.commit()
             return response
-        except Exception as e:
-            db.rollback()  # 실패하면 롤백
-            raise e
         finally:
             db.close()  # 무조건 세션 닫아줌
