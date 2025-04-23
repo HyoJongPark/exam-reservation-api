@@ -79,13 +79,17 @@ PYTHONPATH=. pytest  # 테스트 실행
 
 ---
 
-## 3. API 문서
+## 3. API 문서 및 API 인증 방법
+
+<img width="1483" alt="Image" src="https://github.com/user-attachments/assets/251b732c-efb6-458d-ae94-f7cd1d81c6dd" />
+
+<img width="1454" alt="Image" src="https://github.com/user-attachments/assets/e78c2c92-8d65-480e-8e8a-e74e44a0a0e7" />
 
 - Swagger 기반의 API 문서는 서버 실행 후 `http://localhost:8000/api-docs`에서 확인 가능합니다.
 - Swagger를 통해 요청 응답을 수행할 수 있습니다.
   - 회원가입 -> 로그인 후 토큰 정보를 반환합니다.
-  - 해당 정보를 API Docs 우측 상단 [Authorize] 버튼을 클릭해 기입하고, 인증을 수행할 수 있습니다.
-  - 헤더를 설정하면 `reservations` api에 접근 가능합니다.
+  - 해당 토큰 정보를 API Docs 우측 상단 [Authorize] 버튼을 클릭해 기입하고, 사용자 인증을 수행할 수 있습니다.
+- Swagger가 아닌 Postman등을 사용한다면, `Authorization` 헤더를 설정해 인증을 수행 가능하고 `reservations` api에 접근 가능합니다.
   - ex) `Authorization: Bearer token`
 
 ---
