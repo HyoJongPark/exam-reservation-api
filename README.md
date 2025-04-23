@@ -27,8 +27,8 @@
 ### 1) 프로젝트 클론
 
 ```
-git clone https://github.com/hyojongpark/patient-sync.git
-cd patient-sync
+git clone https://github.com/HyoJongPark/exam-reservation-api.git
+cd exam-reservation-api
 ```
 
 ### 2) 프로젝트 초기 설정
