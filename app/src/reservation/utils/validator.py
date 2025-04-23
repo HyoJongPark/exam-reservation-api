@@ -24,3 +24,10 @@ def validate_reservation_datetime(start: datetime, end: datetime):
     # 5. 최소 30분 간격 검증
     if (end - start).total_seconds() / 60 < 30:
         raise ValueError("예약 시간은 최소 30분 이상이어야 합니다.")
+
+
+def validate_reservation_date_format(date: str, format: str):
+    try:
+        datetime.strptime(date, format)
+    except ValueError as e:
+        raise ValueError(f"해당 요청 형식은 '{format}' 포맷이어야 합니다.") from e

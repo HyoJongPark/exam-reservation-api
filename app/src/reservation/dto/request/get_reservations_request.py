@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.src.reservation.utils.constants import DATE_FORMAT
+from app.src.reservation.utils.validator import validate_reservation_date_format
 
 
 class GetReservationsRequest(BaseModel):
@@ -18,12 +19,7 @@ class GetReservationsRequest(BaseModel):
     @field_validator("start", "end", mode="before")
     @classmethod
     def validate_datetime_format(cls, value: str) -> str:
-        try:
-            datetime.strptime(value, DATE_FORMAT)
-        except ValueError as e:
-            raise ValueError(
-                f"예약 일정 형식은 '{DATE_FORMAT}' 포맷이어야 합니다."
-            ) from e
+        validate_reservation_date_format(value, DATE_FORMAT)
         return value
 
     @model_validator(mode="after")
