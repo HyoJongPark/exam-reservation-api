@@ -90,7 +90,6 @@ PYTHONPATH=. pytest  # 테스트 실행
   - 회원가입 -> 로그인 후 토큰 정보를 반환합니다.
   - 해당 토큰 정보를 API Docs 우측 상단 [Authorize] 버튼을 클릭해 기입하고, 사용자 인증을 수행할 수 있습니다.
 - Swagger가 아닌 Postman등을 사용한다면, `Authorization` 헤더를 설정해 인증을 수행 가능하고 `reservations` api에 접근 가능합니다.
-  - ex) `Authorization: Bearer token`
 
 ---
 
