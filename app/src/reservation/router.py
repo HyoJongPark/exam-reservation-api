@@ -33,7 +33,8 @@ def get_reservations(
     request: Annotated[GetReservationsRequest, Query()],
     db: Session = Depends(get_db_from_request),
 ) -> List[ReservationResponse]:
-    return reservation_service.find_all_by_date(db, user, request)
+    result = reservation_service.find_all_by_date(db, user, request)
+    return [ReservationResponse.from_model(reservation) for reservation in result]
 
 
 @router.get("/{reservation_id}", response_model=ReservationResponse)
@@ -42,7 +43,8 @@ def get_reservation(
     reservation_id: int,
     db: Session = Depends(get_db_from_request),
 ) -> ReservationResponse:
-    return reservation_service.find_by_id(db, user, reservation_id)
+    result = reservation_service.find_by_id(db, user, reservation_id)
+    return ReservationResponse.from_model(result)
 
 
 @router.get("/schedules", response_model=List[GetAvailableScheduleResponse])
@@ -60,7 +62,8 @@ def create_reservation(
     request: Annotated[CreateReservationRequest, Body()],
     db: Session = Depends(get_db_from_request),
 ) -> ReservationResponse:
-    return reservation_service.create_reservation(db, user, request)
+    result = reservation_service.create_reservation(db, user, request)
+    return ReservationResponse.from_model(result)
 
 
 @router.post("/{reservation_id}/confirm", response_model=ReservationResponse)
@@ -69,7 +72,8 @@ def confirm_reservation(
     reservation_id: int,
     db: Session = Depends(get_db_from_request),
 ) -> ReservationResponse:
-    return reservation_service.confirm_reservation(db, user, reservation_id)
+    result = reservation_service.confirm_reservation(db, user, reservation_id)
+    return ReservationResponse.from_model(result)
 
 
 @router.post("/{reservation_id}/cancel", response_model=ReservationResponse)
@@ -78,7 +82,8 @@ def cancel_reservation(
     reservation_id: int,
     db: Session = Depends(get_db_from_request),
 ) -> ReservationResponse:
-    return reservation_service.cancel_reservation(db, user, reservation_id)
+    result = reservation_service.cancel_reservation(db, user, reservation_id)
+    return ReservationResponse.from_model(result)
 
 
 @router.patch("/{reservation_id}", response_model=ReservationResponse)
@@ -88,4 +93,5 @@ def update_reservation(
     request: Annotated[UpdateReservationRequest, Body()],
     db: Session = Depends(get_db_from_request),
 ) -> ReservationResponse:
-    return reservation_service.update_reservation(db, user, reservation_id, request)
+    result = reservation_service.update_reservation(db, user, reservation_id, request)
+    return ReservationResponse.from_model(result)

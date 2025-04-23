@@ -19,7 +19,6 @@ from app.src.reservation.dto.request.update_reservation_request import (
 from app.src.reservation.dto.response.get_available_schedule_response import (
     GetAvailableScheduleResponse,
 )
-from app.src.reservation.dto.response.reservation_response import ReservationResponse
 from app.src.reservation import repository as reservation_repository
 from app.src.reservation.model import Reservation, ReservationStatus
 from app.src.reservation.utils.constants import (
@@ -31,21 +30,21 @@ from app.src.user.model import Role, User
 
 def find_all_by_date(
     db: Session, user: User, request: GetReservationsRequest
-) -> List[ReservationResponse]:
+) -> List[Reservation]:
     if user.role == Role.ADMIN:
-        reservations = reservation_repository.find_all_by_date_and_page(
+        return reservation_repository.find_all_by_date_and_page(
             db, request.start, request.end, request.page, request.limit
         )
-    else:
-        reservations = reservation_repository.find_all_by_user_and_date_and_page(
-            db, user, request.start, request.end, request.page, request.limit
-        )
 
-    return [ReservationResponse.from_model(reservation) for reservation in reservations]
+    return reservation_repository.find_all_by_user_and_date_and_page(
+        db, user, request.start, request.end, request.page, request.limit
+    )
 
 
-def find_by_id(db: Session, user: User, reservation_id: int) -> ReservationResponse:
-    reservation = reservation_repository.find_by_id(db, reservation_id)
+def find_by_id(
+    db: Session, user: User, reservation_id: int, lock: bool = False
+) -> Reservation:
+    reservation = reservation_repository.find_by_id(db, reservation_id, lock)
     if not reservation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -58,7 +57,7 @@ def find_by_id(db: Session, user: User, reservation_id: int) -> ReservationRespo
             detail="조회할 수 없는 예약 정보입니다.",
         )
 
-    return ReservationResponse.from_model(reservation)
+    return reservation
 
 
 def find_available_schedules(
@@ -78,18 +77,15 @@ def find_available_schedules(
 
 def create_reservation(
     db: Session, user: User, request: CreateReservationRequest
-) -> ReservationResponse:
+) -> Reservation:
     _validate_reservation_datetime(
         db, request.start, request.end, request.number_of_people
     )
 
-    reservation = reservation_repository.create(db, request.toModel(user))
-    return ReservationResponse.from_model(reservation)
+    return reservation_repository.create(db, request.toModel(user))
 
 
-def confirm_reservation(
-    db: Session, user: User, reservation_id: int
-) -> ReservationResponse:
+def confirm_reservation(db: Session, user: User, reservation_id: int) -> Reservation:
     reservation = reservation_repository.find_by_id(db, reservation_id, True)
     if not reservation:
         raise HTTPException(
@@ -111,24 +107,13 @@ def confirm_reservation(
         True,
     )
     reservation.status = ReservationStatus.CONFIRMED
-    return ReservationResponse.from_model(reservation)
+    return reservation
 
 
 def update_reservation(
     db: Session, user: User, reservation_id: int, request: UpdateReservationRequest
-) -> ReservationResponse:
-    reservation = reservation_repository.find_by_id(db, reservation_id)
-    if not reservation:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="존재하지 않는 예약입니다.",
-        )
-
-    if user.role != Role.ADMIN and reservation.user_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="접근할 수 없는 예약 정보입니다.",
-        )
+) -> Reservation:
+    reservation = find_by_id(db, user, reservation_id, True)
 
     if user.role != Role.ADMIN and reservation.status != ReservationStatus.PENDING:
         raise HTTPException(
@@ -146,24 +131,19 @@ def update_reservation(
     for key, value in update_data.items():
         setattr(reservation, key, value)
 
-    return ReservationResponse.from_model(reservation)
+    return reservation
 
 
-def cancel_reservation(
-    db: Session, user: User, reservation_id: int
-) -> ReservationResponse:
-    reservation = reservation_repository.find_by_id(db, reservation_id)
-    if user.role != Role.ADMIN and (
-        reservation.user_id != user.id
-        or reservation.status != ReservationStatus.PENDING
-    ):
+def cancel_reservation(db: Session, user: User, reservation_id: int) -> Reservation:
+    reservation = find_by_id(db, user, reservation_id)
+    if user.role != Role.ADMIN and reservation.status != ReservationStatus.PENDING:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="접근할 수 없는 예약 정보입니다.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="취소할 수 없는 예약 정보입니다.",
         )
 
     reservation.status = ReservationStatus.CANCELLED
-    return ReservationResponse.from_model(reservation)
+    return reservation
 
 
 def _validate_reservation_datetime(
