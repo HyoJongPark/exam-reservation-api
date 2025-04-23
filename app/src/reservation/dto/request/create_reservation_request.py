@@ -9,10 +9,16 @@ from app.src.user.model import User
 
 
 class CreateReservationRequest(BaseModel):
-    start: datetime
-    end: datetime
-    reservation_name: str
-    number_of_people: int = Field(default=1, ge=1, le=MAX_CAPACITY)
+    start: datetime = Field(
+        ..., description="예약 시작 시간(YYYY-MM-DD HH:MM)", example="2025-05-01 12:00"
+    )
+    end: datetime = Field(
+        ..., description="예약 종료 시간(YYYY-MM-DD HH:MM)", example="2025-05-01 13:00"
+    )
+    reservation_name: str = Field(..., description="일정 명")
+    number_of_people: int = Field(
+        default=1, ge=1, le=MAX_CAPACITY, description="예약 인원 수", example=1
+    )
 
     @field_validator("start", "end", mode="before")
     @classmethod

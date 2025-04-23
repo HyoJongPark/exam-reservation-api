@@ -5,13 +5,12 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from app.src.common.token import Token
+from app.src.middleware.authenticate import ALGORITHM, SECRET_KEY
 from app.src.user import repository as user_repository
 from app.src.user.dto.request.user_create_request import UserCreateRequest
 from app.src.user.dto.request.user_login_request import UserLoginRequest
 from app.src.user.dto.response.user_create_response import UserCreateResponse
 
-SECRET_KEY = "secret_key"
-ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 

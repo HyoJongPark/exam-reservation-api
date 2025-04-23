@@ -1,13 +1,17 @@
 from datetime import datetime, timedelta
 
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.src.reservation.utils.constants import DATE_FORMAT
 
 
 class GetAvailableScheduleRequest(BaseModel):
-    start: datetime
-    end: datetime
+    start: datetime = Field(
+        ..., description="조회 시작 일자(YYYY-MM-DD)", example="2025-05-01"
+    )
+    end: datetime = Field(
+        ..., description="조회 종료 일자(YYYY-MM-DD)", example="2025-05-01"
+    )
 
     @field_validator("start", "end", mode="before")
     @classmethod

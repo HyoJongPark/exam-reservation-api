@@ -6,10 +6,14 @@ from app.src.reservation.utils.constants import DATE_FORMAT
 
 
 class GetReservationsRequest(BaseModel):
-    page: int = Field(default=1, ge=1)
-    limit: int = Field(default=10, ge=10)
-    start: datetime
-    end: datetime
+    page: int = Field(default=1, ge=1, description="페이지 번호", example=1)
+    limit: int = Field(default=10, ge=10, description="페이지 당 조회 개수", example=10)
+    start: datetime = Field(
+        ..., description="조회 시작 일자(YYYY-MM-DD)", example="2025-05-01"
+    )
+    end: datetime = Field(
+        ..., description="조회 종료 일자(YYYY-MM-DD)", example="2025-05-01"
+    )
 
     @field_validator("start", "end", mode="before")
     @classmethod

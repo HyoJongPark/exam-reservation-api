@@ -7,9 +7,23 @@ from app.src.reservation.utils.validator import validate_reservation_datetime
 
 
 class UpdateReservationRequest(BaseModel):
-    start: datetime | None = None
-    end: datetime | None = None
-    number_of_people: int | None = Field(default=None, ge=1, le=MAX_CAPACITY)
+    start: datetime | None = Field(
+        default=None,
+        description="예약 시작 시간(YYYY-MM-DD HH:MM)",
+        example="2025-05-01 12:00",
+    )
+    end: datetime | None = Field(
+        default=None,
+        description="예약 종료 시간(YYYY-MM-DD HH:MM)",
+        example="2025-05-01 13:00",
+    )
+    number_of_people: int | None = Field(
+        default=None,
+        ge=1,
+        le=MAX_CAPACITY,
+        description="예약 인원 수",
+        example=1,
+    )
 
     @classmethod
     @field_validator("start", "end", mode="before")

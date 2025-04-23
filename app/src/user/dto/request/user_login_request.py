@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserLoginRequest(BaseModel):
-    email: str
-    password: str
+    email: str = Field(..., description="이메일", example="test@test.com")
+    password: str = Field(..., description="비밀번호", example="password")
