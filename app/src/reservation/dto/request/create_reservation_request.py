@@ -20,7 +20,7 @@ class CreateReservationRequest(BaseModel):
     )
     reservation_name: str = Field(..., description="일정 명")
     number_of_people: int = Field(
-        default=1, ge=1, le=MAX_CAPACITY, description="예약 인원 수", example=1
+        ge=1, le=MAX_CAPACITY, description="예약 인원 수", example=1
     )
 
     @field_validator("start", "end", mode="before")
