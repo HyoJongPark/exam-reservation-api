@@ -54,6 +54,7 @@ def dummy_reservation():
     )
 
 
+@pytest.mark.unit
 class TestFindAllByDate:
     """find_all_by_date 함수 테스트"""
 
@@ -171,6 +172,7 @@ class TestFindAllByDate:
         assert {res.id for res in result} == {res.id for res in reservations}
 
 
+@pytest.mark.unit
 class TestFindByID:
     """find_by_id 함수 테스트"""
 
@@ -256,6 +258,7 @@ class TestFindByID:
         assert result.id == dummy_reservation.id
 
 
+@pytest.mark.unit
 class TestFindAvailableSchedules:
     """find_available_schedules 함수 테스트"""
 
@@ -424,6 +427,7 @@ class TestFindAvailableSchedules:
         assert result[0].end == dummy_request.end
 
 
+@pytest.mark.unit
 class TestCreateReservation:
     """create_reservation 함수 테스트"""
 
@@ -512,6 +516,7 @@ class TestCreateReservation:
         assert create_function.call_count == 1
 
 
+@pytest.mark.unit
 class TestConfirmReservation:
     """confirm_reservation 함수 테스트"""
 
@@ -652,6 +657,7 @@ class TestConfirmReservation:
         assert result.status == ReservationStatus.CONFIRMED
 
 
+@pytest.mark.unit
 class TestUpdateReservation:
     """update_reservation 함수 테스트"""
 

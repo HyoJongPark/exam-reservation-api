@@ -75,6 +75,9 @@ PYTHONPATH=./app/src uvicorn main:app --reload
 ```
 docker compose -f docker-compose.test.yml up -d  # 테스트환경 용 DB 실행
 PYTHONPATH=. pytest  # 테스트 실행
+
+# PYTHONPATH=. pytest -m unit        # 단위 테스트 실행
+# PYTHONPATH=. pytest -m integration # 통합 테스트 실행
 ```
 
 ---
