@@ -5,7 +5,8 @@ from sqlalchemy.orm import sessionmaker
 from app.src.config.database import Base  # 실제 모델 정의된 Base
 
 # 테스트용 PostgreSQL 연결 URL
-TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/reservation-test-db"
+# TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/reservation-test-db"
+TEST_DATABASE_URL = "postgresql://postgres:postgres@test-db:5432/reservation-test-db"
 
 engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

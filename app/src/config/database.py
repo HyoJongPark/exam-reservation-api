@@ -4,7 +4,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 # PostgreSQL 데이터베이스 URL 설정
-SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@localhost:5432/reservation"
+SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@db:5432/reservation"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

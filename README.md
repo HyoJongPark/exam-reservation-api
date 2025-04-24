@@ -31,54 +31,19 @@ git clone https://github.com/HyoJongPark/exam-reservation-api.git
 cd exam-reservation-api
 ```
 
-### 2) 프로젝트 초기 설정
-
-```
-brew install pyenv
-pyenv install 3.12.0
-
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-
-pyenv local 3.12.0
-```
-
-- 해당 프로젝트는 python version 3.12에서 작성되었습니다.
-- 버전 문제로 실행되지 않은 시 `pyenv`를 사용해 프로젝트 환경에 맞는 버전을 설치하고, 재실행 시켜보시면 됩니다.
-
-```
-python -m venv venv
-source ./venv/bin/activate  # macOS/Linux
-
-pip install -r requirements.txt
-```
-
-- 가상환경을 설정합니다.
-
-### 3) 프로젝트 실행
+### 2) 프로젝트 실행
 
 ```
 # 도커 실행 (DB)
 docker compose -f docker-compose.yml up -d
 
-# 파이썬 실행
-PYTHONPATH=./app/src uvicorn main:app --reload
+# 테스크 코드 실행
+docker exec -e PYTHONPATH=/app -it reservation-api pytest -m integration
+docker exec -e PYTHONPATH=/app -it reservation-api pytest -m unit
 ```
 
-- DB는 도커 환경을 통해 실행됩니다. 따라서 도커 설치가 필요합니다.
-- 도커 실행 후 파이썬 실행 명령어를 가상환경이 설정된 터미널 내에서 실행하면 API 호출이 가능합니다.
-
-### 4) 테스트 실행
-
-```
-docker compose -f docker-compose.test.yml up -d  # 테스트환경 용 DB 실행
-PYTHONPATH=. pytest  # 테스트 실행
-
-# PYTHONPATH=. pytest -m unit        # 단위 테스트 실행
-# PYTHONPATH=. pytest -m integration # 통합 테스트 실행
-```
+- DB, 서버는 도커 환경을 통해 실행됩니다. 따라서 도커 설치가 필요합니다.
+- 도커 실행 후 `localhost:8000`을 기준으로 API실행이 가능합니다.
 
 ---
 
